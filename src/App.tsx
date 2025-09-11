@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './App.css';
+import './NewApp.css';
 import { DailyEntry, Habit } from './types';
 import Dashboard from './components/Dashboard';
 import DailyEntryForm from './components/DailyEntryForm';
@@ -9,134 +9,57 @@ import Analytics from './components/Analytics';
 import ExportTest from './components/ExportTest';
 import Macros from './components/macros/Macros';
 
-// Simple Header component without DatabaseService dependency
-const SimpleHeader: React.FC<{
+// Beautiful Sidebar Navigation Component
+const SidebarNavigation: React.FC<{
   currentView: string;
   onViewChange: (view: 'dashboard' | 'entry' | 'analytics' | 'tasks' | 'supplements' | 'macros' | 'export-test') => void;
 }> = ({ currentView, onViewChange }) => {
-  const today = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+    // Here you could implement actual theme switching if needed
+  };
+
+  const navItems = [
+    { key: 'dashboard', label: '📊 Dashboard', icon: '📊' },
+    { key: 'entry', label: '✏️ Daily Entry', icon: '✏️' },
+    { key: 'analytics', label: '📈 Analytics', icon: '📈' },
+    { key: 'tasks', label: '✅ Tasks', icon: '✅' },
+    { key: 'supplements', label: '💊 Supplements', icon: '💊' },
+    { key: 'macros', label: '🥗 Macros', icon: '🥗' },
+    { key: 'export-test', label: '📥 Export', icon: '📥' }
+  ];
 
   return (
-    <header style={{
-      backgroundColor: '#16213e',
-      padding: '1rem 2rem',
-      marginBottom: '2rem',
-      borderRadius: '0.5rem'
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: '1.5rem' }}>📈 Daily Tracker</h1>
-          <p style={{ margin: '0.25rem 0 0 0', opacity: 0.8, fontSize: '0.875rem' }}>{today}</p>
-        </div>
-        
-        <nav style={{ display: 'flex', gap: '0.5rem' }}>
-          <button
-            onClick={() => onViewChange('dashboard')}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: currentView === 'dashboard' ? '#4f46e5' : '#374151',
-              color: 'white',
-              border: 'none',
-              borderRadius: '0.25rem',
-              cursor: 'pointer',
-              fontSize: '0.875rem'
-            }}
-          >
-            📊 Dashboard
-          </button>
-          <button
-            onClick={() => onViewChange('entry')}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: currentView === 'entry' ? '#4f46e5' : '#374151',
-              color: 'white',
-              border: 'none',
-              borderRadius: '0.25rem',
-              cursor: 'pointer',
-              fontSize: '0.875rem'
-            }}
-          >
-            ✏️ Entry
-          </button>
-          <button
-            onClick={() => onViewChange('analytics')}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: currentView === 'analytics' ? '#4f46e5' : '#374151',
-              color: 'white',
-              border: 'none',
-              borderRadius: '0.25rem',
-              cursor: 'pointer',
-              fontSize: '0.875rem'
-            }}
-          >
-            📈 Analytics
-          </button>
-          <button
-            onClick={() => onViewChange('tasks')}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: currentView === 'tasks' ? '#4f46e5' : '#374151',
-              color: 'white',
-              border: 'none',
-              borderRadius: '0.25rem',
-              cursor: 'pointer',
-              fontSize: '0.875rem'
-            }}
-          >
-            ✅ Tasks
-          </button>
-          <button
-            onClick={() => onViewChange('supplements')}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: currentView === 'supplements' ? '#4f46e5' : '#374151',
-              color: 'white',
-              border: 'none',
-              borderRadius: '0.25rem',
-              cursor: 'pointer',
-              fontSize: '0.875rem'
-            }}
-          >
-            📊 Supplements
-          </button>
-          <button
-            onClick={() => onViewChange('macros')}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: currentView === 'macros' ? '#4f46e5' : '#374151',
-              color: 'white',
-              border: 'none',
-              borderRadius: '0.25rem',
-              cursor: 'pointer',
-              fontSize: '0.875rem'
-            }}
-          >
-            🥗 Macros
-          </button>
-          <button
-            onClick={() => onViewChange('export-test')}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: currentView === 'export-test' ? '#4f46e5' : '#374151',
-              color: 'white',
-              border: 'none',
-              borderRadius: '0.25rem',
-              cursor: 'pointer',
-              fontSize: '0.875rem',
-              opacity: 0.7
-            }}
-          >
-            📥 Export
-          </button>
-        </nav>
+    <aside className="sidebar">
+      <div className="sidebar-header">
+        <h2>📈 Daily Tracker</h2>
+        <button 
+          className="theme-toggle btn btn--sm btn--secondary"
+          onClick={toggleTheme}
+          title="Toggle theme"
+        >
+          {isDarkMode ? '☀️' : '🌙'}
+        </button>
       </div>
-    </header>
+      
+      <nav>
+        <ul className="nav-menu">
+          {navItems.map((item) => (
+            <li key={item.key}>
+              <button
+                className={`nav-item ${currentView === item.key ? 'active' : ''}`}
+                onClick={() => onViewChange(item.key as any)}
+              >
+                <span style={{ marginRight: '8px' }}>{item.icon}</span>
+                {item.label.replace(/^[^\s]+\s/, '')}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </aside>
   );
 };
 
@@ -194,51 +117,83 @@ function App() {
     return entries.find(entry => entry.date === today);
   };
 
+  // Get today's date for header
+  const today = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
+  // Get section titles
+  const getSectionTitle = () => {
+    switch (currentView) {
+      case 'dashboard': return 'Dashboard Overview';
+      case 'entry': return 'Daily Entry';
+      case 'analytics': return 'Analytics & Insights';
+      case 'tasks': return 'Task Management';
+      case 'supplements': return 'Supplement Tracker';
+      case 'macros': return 'Macro Tracking';
+      case 'export-test': return 'Data Export';
+      default: return 'Dashboard';
+    }
+  };
+
   return (
-    <div className="App" style={{
-      minHeight: '100vh',
-      backgroundColor: '#1a1a2e',
-      color: 'white',
-      padding: '1rem'
-    }}>
-      <SimpleHeader currentView={currentView} onViewChange={setCurrentView} />
+    <div className="app-container">
+      <SidebarNavigation currentView={currentView} onViewChange={setCurrentView} />
       
       <main className="main-content">
-        {currentView === 'dashboard' && (
-          <Dashboard 
-            entries={entries}
-            habits={habits}
-            todaysEntry={getTodaysEntry()}
-          />
-        )}
-        
-        {currentView === 'entry' && (
-          <DailyEntryForm
-            habits={habits}
-            existingEntry={getTodaysEntry()}
-            onSave={getTodaysEntry() ? updateEntry : addEntry}
-          />
-        )}
-        
-        {currentView === 'analytics' && (
-          <Analytics />
-        )}
-        
-        {currentView === 'tasks' && (
-          <SimpleTasksComponent />
-        )}
-        
-        {currentView === 'supplements' && (
-          <SupplementManager />
-        )}
-        
-        {currentView === 'macros' && (
-          <Macros />
-        )}
-        
-        {currentView === 'export-test' && (
-          <ExportTest />
-        )}
+        <div className="section-header">
+          <div>
+            <h1>{getSectionTitle()}</h1>
+            <p style={{ 
+              margin: '0.5rem 0 0 0', 
+              color: 'var(--color-text-secondary)', 
+              fontSize: 'var(--font-size-sm)' 
+            }}>
+              {today}
+            </p>
+          </div>
+        </div>
+
+        <div className="content-section active">
+          {currentView === 'dashboard' && (
+            <Dashboard 
+              entries={entries}
+              habits={habits}
+              todaysEntry={getTodaysEntry()}
+            />
+          )}
+          
+          {currentView === 'entry' && (
+            <DailyEntryForm
+              habits={habits}
+              existingEntry={getTodaysEntry()}
+              onSave={getTodaysEntry() ? updateEntry : addEntry}
+            />
+          )}
+          
+          {currentView === 'analytics' && (
+            <Analytics />
+          )}
+          
+          {currentView === 'tasks' && (
+            <SimpleTasksComponent />
+          )}
+          
+          {currentView === 'supplements' && (
+            <SupplementManager />
+          )}
+          
+          {currentView === 'macros' && (
+            <Macros />
+          )}
+          
+          {currentView === 'export-test' && (
+            <ExportTest />
+          )}
+        </div>
       </main>
     </div>
   );

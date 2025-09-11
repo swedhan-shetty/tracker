@@ -42,103 +42,131 @@ const Dashboard: React.FC<DashboardProps> = ({ entries, habits, todaysEntry }) =
   };
 
   return (
-    <div className="dashboard">
-      <div className="dashboard-header">
-        <h2>Dashboard Overview</h2>
-      </div>
+    <div className="dashboard-grid">
+      <div className="card">
+        <div className="card__body">
+          <div className="stats-grid">
+            <div className="stat-item">
+              <span className="stat-value">{entries.length}</span>
+              <span className="stat-label">📝 Total Entries</span>
+            </div>
 
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon">📝</div>
-          <div className="stat-content">
-            <h3>Total Entries</h3>
-            <p className="stat-number">{entries.length}</p>
-          </div>
-        </div>
+            <div className="stat-item">
+              <span className="stat-value">{getStreakCount()}</span>
+              <span className="stat-label">🔥 Day Streak</span>
+            </div>
 
-        <div className="stat-card">
-          <div className="stat-icon">🔥</div>
-          <div className="stat-content">
-            <h3>Current Streak</h3>
-            <p className="stat-number">{getStreakCount()} days</p>
-          </div>
-        </div>
+            <div className="stat-item">
+              <span className="stat-value">{getAverageMood()}/10</span>
+              <span className="stat-label">😊 Avg Mood</span>
+            </div>
 
-        <div className="stat-card">
-          <div className="stat-icon">😊</div>
-          <div className="stat-content">
-            <h3>Avg Mood</h3>
-            <p className="stat-number">{getAverageMood()}/10</p>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">🎯</div>
-          <div className="stat-content">
-            <h3>Active Habits</h3>
-            <p className="stat-number">{habits.length}</p>
+            <div className="stat-item">
+              <span className="stat-value">{habits.length}</span>
+              <span className="stat-label">🎯 Active Habits</span>
+            </div>
           </div>
         </div>
       </div>
 
       {todaysEntry ? (
-        <div className="todays-summary">
-          <h3>Today's Entry</h3>
-          <div className="summary-grid">
-            <div className="summary-item">
-              <span className="label">Mood:</span>
-              <span className="value">{todaysEntry.mood}/10</span>
+        <div className="card">
+          <div className="card__body">
+            <h3 style={{ marginBottom: 'var(--space-16)' }}>Today's Entry</h3>
+            <div className="stats-grid">
+              <div className="stat-item">
+                <span className="stat-value">{todaysEntry.mood}/10</span>
+                <span className="stat-label">😊 Mood</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-value">{todaysEntry.energy}/10</span>
+                <span className="stat-label">⚡ Energy</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-value">{todaysEntry.productivity}/10</span>
+                <span className="stat-label">🎯 Productivity</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-value">{todaysEntry.sleep}h</span>
+                <span className="stat-label">😴 Sleep</span>
+              </div>
             </div>
-            <div className="summary-item">
-              <span className="label">Energy:</span>
-              <span className="value">{todaysEntry.energy}/10</span>
+            <div style={{ marginTop: 'var(--space-16)', textAlign: 'center' }}>
+              <span style={{ 
+                color: todaysEntry.exercise ? 'var(--color-success)' : 'var(--color-text-secondary)',
+                fontSize: 'var(--font-size-lg)' 
+              }}>
+                🏃‍♂️ Exercise: {todaysEntry.exercise ? '✅' : '❌'}
+              </span>
             </div>
-            <div className="summary-item">
-              <span className="label">Productivity:</span>
-              <span className="value">{todaysEntry.productivity}/10</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Sleep:</span>
-              <span className="value">{todaysEntry.sleep} hours</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Exercise:</span>
-              <span className="value">{todaysEntry.exercise ? '✅' : '❌'}</span>
-            </div>
+            {todaysEntry.notes && (
+              <div style={{ 
+                marginTop: 'var(--space-16)', 
+                padding: 'var(--space-12)', 
+                backgroundColor: 'var(--color-bg-1)', 
+                borderRadius: 'var(--radius-base)', 
+                fontSize: 'var(--font-size-sm)' 
+              }}>
+                <strong>Notes:</strong> {todaysEntry.notes}
+              </div>
+            )}
           </div>
-          {todaysEntry.notes && (
-            <div className="notes-preview">
-              <strong>Notes:</strong> {todaysEntry.notes}
-            </div>
-          )}
         </div>
       ) : (
-        <div className="no-entry-today">
-          <h3>No entry for today</h3>
-          <p>Start tracking your day by creating a new entry!</p>
+        <div className="card">
+          <div className="card__body" style={{ textAlign: 'center' }}>
+            <h3 style={{ color: 'var(--color-text-secondary)' }}>No entry for today</h3>
+            <p style={{ color: 'var(--color-text-secondary)' }}>Start tracking your day by creating a new entry!</p>
+          </div>
         </div>
       )}
 
-      <div className="recent-entries">
-        <h3>Recent Entries</h3>
-        {getRecentEntries().length > 0 ? (
-          <div className="entries-list">
-            {getRecentEntries().map(entry => (
-              <div key={entry.id} className="entry-item">
-                <div className="entry-date">
-                  {new Date(entry.date).toLocaleDateString()}
+      <div className="card">
+        <div className="card__body">
+          <h3 style={{ marginBottom: 'var(--space-16)' }}>Recent Entries</h3>
+          {getRecentEntries().length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-12)' }}>
+              {getRecentEntries().map(entry => (
+                <div key={entry.id} style={{
+                  padding: 'var(--space-12)',
+                  backgroundColor: 'var(--color-bg-1)',
+                  borderRadius: 'var(--radius-base)',
+                  border: '1px solid var(--color-border)'
+                }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    gap: 'var(--space-8)'
+                  }}>
+                    <strong style={{ color: 'var(--color-text)' }}>
+                      {new Date(entry.date).toLocaleDateString()}
+                    </strong>
+                    <div style={{ 
+                      display: 'flex', 
+                      gap: 'var(--space-16)', 
+                      fontSize: 'var(--font-size-sm)',
+                      color: 'var(--color-text-secondary)'
+                    }}>
+                      <span>😊 {entry.mood}/10</span>
+                      <span>⚡ {entry.energy}/10</span>
+                      <span>😴 {entry.sleep}h</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="entry-summary">
-                  <span>Mood: {entry.mood}/10</span>
-                  <span>Energy: {entry.energy}/10</span>
-                  <span>Sleep: {entry.sleep}h</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p>No entries yet. Start by creating your first daily entry!</p>
-        )}
+              ))}
+            </div>
+          ) : (
+            <p style={{ 
+              textAlign: 'center', 
+              color: 'var(--color-text-secondary)', 
+              fontStyle: 'italic' 
+            }}>
+              No entries yet. Start by creating your first daily entry!
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

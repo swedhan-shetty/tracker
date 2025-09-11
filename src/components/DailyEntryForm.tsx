@@ -134,22 +134,25 @@ const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
   };
 
   return (
-    <div className="daily-entry-form">
-      <div className="form-header">
+    <div className="daily-entry-form card">
+      <div className="card__body">
         <h2>{existingEntry ? 'Edit Today\'s Entry' : 'New Daily Entry'}</h2>
-        <p>Track your daily metrics and goals</p>
-      </div>
+        <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-24)' }}>
+          Track your daily metrics and goals
+        </p>
 
-      <form onSubmit={handleSubmit}>
-        <div className="form-section">
-          <h3>📅 Date</h3>
-          <input
-            type="date"
-            value={formData.date}
-            onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-            className="date-input"
-          />
-        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="form-section">
+            <h3>📅 Date</h3>
+            <div className="form-group">
+              <input
+                type="date"
+                value={formData.date}
+                onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                className="form-control"
+              />
+            </div>
+          </div>
 
         <div className="form-section">
           <h3>📊 Daily Metrics</h3>
@@ -196,8 +199,8 @@ const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
             </label>
           </div>
 
-          <div className="input-group">
-            <label>
+          <div className="form-group">
+            <label className="form-label">
               😴 Sleep (hours):
               <input
                 type="number"
@@ -206,7 +209,7 @@ const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                 step="0.5"
                 value={formData.sleep}
                 onChange={(e) => setFormData(prev => ({ ...prev, sleep: parseFloat(e.target.value) }))}
-                className="number-input"
+                className="form-control"
               />
             </label>
           </div>
@@ -232,9 +235,9 @@ const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
               value={newGoal}
               onChange={(e) => setNewGoal(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addGoal())}
-              className="goal-input"
+              className="form-control goal-input"
             />
-            <button type="button" onClick={addGoal} className="add-goal-btn">
+            <button type="button" onClick={addGoal} className="btn btn--primary btn--sm">
               Add Goal
             </button>
           </div>
@@ -289,10 +292,11 @@ const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
           />
         </div>
 
-        <button type="submit" className="save-btn">
-          {existingEntry ? 'Update Entry' : 'Save Entry'}
-        </button>
-      </form>
+          <button type="submit" className="btn btn--primary btn--full-width">
+            {existingEntry ? 'Update Entry' : 'Save Entry'}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
