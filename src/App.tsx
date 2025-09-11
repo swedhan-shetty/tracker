@@ -8,11 +8,12 @@ import SupplementManager from './components/SupplementManager';
 import Analytics from './components/Analytics';
 import ExportTest from './components/ExportTest';
 import Macros from './components/macros/Macros';
+import BookTracker from './components/BookTracker';
 
 // Beautiful Sidebar Navigation Component
 const SidebarNavigation: React.FC<{
   currentView: string;
-  onViewChange: (view: 'dashboard' | 'entry' | 'analytics' | 'tasks' | 'supplements' | 'macros' | 'export-test') => void;
+  onViewChange: (view: 'dashboard' | 'entry' | 'analytics' | 'tasks' | 'supplements' | 'macros' | 'export-test' | 'books') => void;
 }> = ({ currentView, onViewChange }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -28,6 +29,7 @@ const SidebarNavigation: React.FC<{
     { key: 'tasks', label: '✅ Tasks', icon: '✅' },
     { key: 'supplements', label: '💊 Supplements', icon: '💊' },
     { key: 'macros', label: '🥗 Macros', icon: '🥗' },
+    { key: 'books', label: '📚 Books', icon: '📚' },
     { key: 'export-test', label: '📥 Export', icon: '📥' }
   ];
 
@@ -66,7 +68,7 @@ const SidebarNavigation: React.FC<{
 function App() {
   const [entries, setEntries] = useState<DailyEntry[]>([]);
   const [habits, setHabits] = useState<Habit[]>([]);
-  const [currentView, setCurrentView] = useState<'dashboard' | 'entry' | 'analytics' | 'tasks' | 'supplements' | 'macros' | 'export-test'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'entry' | 'analytics' | 'tasks' | 'supplements' | 'macros' | 'export-test' | 'books'>('dashboard');
 
   // Load data from localStorage on startup
   useEffect(() => {
@@ -134,6 +136,7 @@ function App() {
       case 'tasks': return 'Task Management';
       case 'supplements': return 'Supplement Tracker';
       case 'macros': return 'Macro Tracking';
+      case 'books': return 'Book Library';
       case 'export-test': return 'Data Export';
       default: return 'Dashboard';
     }
@@ -192,6 +195,10 @@ function App() {
           
           {currentView === 'export-test' && (
             <ExportTest />
+          )}
+          
+          {currentView === 'books' && (
+            <BookTracker />
           )}
         </div>
       </main>

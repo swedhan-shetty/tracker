@@ -689,6 +689,73 @@ h3 { font-size: var(--font-size-2xl); }
   outline-offset: -2px;
 }
 
+/* Book-specific styles */
+.book-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.book-card .card__body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.book-card .card__body > div:last-child {
+  margin-top: auto;
+}
+
+/* Modal overlay */
+.modal-overlay {
+  backdrop-filter: blur(2px);
+}
+
+.modal-content {
+  animation: modalFadeIn var(--duration-normal) var(--ease-standard);
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Progress bars */
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background-color: var(--color-secondary);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  transition: width var(--duration-normal) var(--ease-standard);
+  border-radius: var(--radius-sm);
+}
+
+/* Book status colors */
+.status-to-read { color: var(--color-info); }
+.status-reading { color: var(--color-warning); }
+.status-completed { color: var(--color-success); }
+
+/* Book library grid improvements */
+.book-library .dashboard-grid {
+  gap: var(--space-20);
+}
+
+/* Ensure cards have consistent height */
+.book-card {
+  min-height: 320px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .app-container {

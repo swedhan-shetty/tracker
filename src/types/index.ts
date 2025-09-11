@@ -109,3 +109,6 @@ export interface FilterOptions {
   startDate?: string;
   endDate?: string;
 }
+
+// Re-export book types
+export * from './book';
