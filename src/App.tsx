@@ -9,56 +9,25 @@ import SupplementManager from './components/SupplementManager';
 import Analytics from './components/Analytics';
 import ExportTest from './components/ExportTest';
 import Macros from './components/macros/Macros';
-import { supabase } from './lib/supabase';
-import { Auth } from './components/Auth';
-import { DatabaseService } from './services/databaseService';
-import { migrateLocalStorageToCloud, isMigrationCompleted, getLocalStorageData } from './utils/dataMigration';
+// Temporarily disable Supabase to debug white screen
+// import { supabase } from './lib/supabase';
+// import { Auth } from './components/Auth';
+// import { DatabaseService } from './services/databaseService';
+// import { migrateLocalStorageToCloud, isMigrationCompleted, getLocalStorageData } from './utils/dataMigration';
 
 function App() {
   const [entries, setEntries] = useState<DailyEntry[]>([]);
   const [habits, setHabits] = useState<Habit[]>([]);
   const [currentView, setCurrentView] = useState<'dashboard' | 'entry' | 'analytics' | 'tasks' | 'supplements' | 'macros' | 'export-test'>('dashboard');
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [authChecked, setAuthChecked] = useState<boolean>(false);
+  // Temporarily skip authentication for debugging
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
+  const [authChecked, setAuthChecked] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
-  // Load data from cloud database and handle migration
-  const loadCloudData = async () => {
-    setLoading(true);
-    setError('');
-    
+  // Simple localStorage data loading for debugging
+  const loadLocalData = () => {
     try {
-      // Check if we need to migrate localStorage data first
-      if (!isMigrationCompleted()) {
-        const localData = getLocalStorageData();
-        
-        if (localData.hasData) {
-          console.log('Migrating localStorage data to cloud...');
-          const migrationResult = await migrateLocalStorageToCloud();
-          
-          if (migrationResult.success) {
-            console.log(`Migration successful: ${migrationResult.entriesMigrated} entries, ${migrationResult.habitsMigrated} habits`);
-          } else {
-            console.warn('Migration failed:', migrationResult.error);
-          }
-        }
-      }
-      
-      // Load data from cloud
-      const [cloudEntries, cloudHabits] = await Promise.all([
-        DatabaseService.getDailyEntries(),
-        DatabaseService.getHabits()
-      ]);
-      
-      setEntries(cloudEntries);
-      setHabits(cloudHabits);
-      
-    } catch (err: any) {
-      console.error('Error loading cloud data:', err);
-      setError('Failed to load data from cloud');
-      
-      // Fallback to localStorage if cloud fails
       const savedEntries = localStorage.getItem('dailyEntries');
       const savedHabits = localStorage.getItem('habits');
       
@@ -69,42 +38,14 @@ function App() {
       if (savedHabits) {
         setHabits(JSON.parse(savedHabits));
       }
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      console.error('Error loading localStorage data:', err);
     }
   };
 
-  // Initialize auth session and subscribe to changes
+  // Simple data loading on mount for debugging
   useEffect(() => {
-    let mounted = true;
-    const init = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!mounted) return;
-      setIsAuthenticated(!!session);
-      setAuthChecked(true);
-      
-      // Load data from cloud when authenticated
-      if (session) {
-        await loadCloudData();
-      }
-    };
-    init();
-    const { data: subscription } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setIsAuthenticated(!!session);
-      
-      // Load data when user signs in
-      if (session) {
-        await loadCloudData();
-      } else {
-        // Clear data when user signs out
-        setEntries([]);
-        setHabits([]);
-      }
-    });
-    return () => {
-      mounted = false;
-      subscription.subscription.unsubscribe();
-    };
+    loadLocalData();
   }, []);
 
 
@@ -123,57 +64,24 @@ function App() {
     }
   }, [habits, isAuthenticated]);
 
-  const addEntry = async (entry: DailyEntry) => {
-    setLoading(true);
-    try {
-      const savedEntry = await DatabaseService.saveDailyEntry(entry);
-      setEntries(prev => [...prev, savedEntry]);
-    } catch (err: any) {
-      console.error('Error saving entry:', err);
-      setError('Failed to save entry');
-      // Fallback to local state
-      setEntries(prev => [...prev, entry]);
-    } finally {
-      setLoading(false);
-    }
+  const addEntry = (entry: DailyEntry) => {
+    const newEntries = [...entries, entry];
+    setEntries(newEntries);
+    localStorage.setItem('dailyEntries', JSON.stringify(newEntries));
   };
 
-  const updateEntry = async (updatedEntry: DailyEntry) => {
-    setLoading(true);
-    try {
-      const savedEntry = await DatabaseService.saveDailyEntry(updatedEntry);
-      setEntries(prev => 
-        prev.map(entry => 
-          entry.id === updatedEntry.id ? savedEntry : entry
-        )
-      );
-    } catch (err: any) {
-      console.error('Error updating entry:', err);
-      setError('Failed to update entry');
-      // Fallback to local state
-      setEntries(prev => 
-        prev.map(entry => 
-          entry.id === updatedEntry.id ? updatedEntry : entry
-        )
-      );
-    } finally {
-      setLoading(false);
-    }
+  const updateEntry = (updatedEntry: DailyEntry) => {
+    const newEntries = entries.map(entry => 
+      entry.id === updatedEntry.id ? updatedEntry : entry
+    );
+    setEntries(newEntries);
+    localStorage.setItem('dailyEntries', JSON.stringify(newEntries));
   };
 
-  const addHabit = async (habit: Habit) => {
-    setLoading(true);
-    try {
-      const savedHabit = await DatabaseService.saveHabit(habit);
-      setHabits(prev => [...prev, savedHabit]);
-    } catch (err: any) {
-      console.error('Error saving habit:', err);
-      setError('Failed to save habit');
-      // Fallback to local state
-      setHabits(prev => [...prev, habit]);
-    } finally {
-      setLoading(false);
-    }
+  const addHabit = (habit: Habit) => {
+    const newHabits = [...habits, habit];
+    setHabits(newHabits);
+    localStorage.setItem('habits', JSON.stringify(newHabits));
   };
 
   const getTodaysEntry = (): DailyEntry | undefined => {
@@ -181,13 +89,14 @@ function App() {
     return entries.find(entry => entry.date === today);
   };
 
-  if (!authChecked) {
-    return <div className="auth-container"><div className="auth-form"><h2>Loading...</h2></div></div>;
-  }
+  // Skip authentication for debugging
+  // if (!authChecked) {
+  //   return <div className="auth-container"><div className="auth-form"><h2>Loading...</h2></div></div>;
+  // }
 
-  if (!isAuthenticated) {
-    return <Auth onAuthSuccess={() => setIsAuthenticated(true)} />;
-  }
+  // if (!isAuthenticated) {
+  //   return <Auth onAuthSuccess={() => setIsAuthenticated(true)} />;
+  // }
 
   return (
     <div className="App">
