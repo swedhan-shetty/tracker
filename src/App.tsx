@@ -4,11 +4,15 @@ import { DailyEntry, Habit } from './types';
 import Dashboard from './components/Dashboard';
 import DailyEntryForm from './components/DailyEntryForm';
 import SimpleTasksComponent from './components/SimpleTasksComponent';
+import SupplementManager from './components/SupplementManager';
+import Analytics from './components/Analytics';
+import ExportTest from './components/ExportTest';
+import Macros from './components/macros/Macros';
 
 // Simple Header component without DatabaseService dependency
 const SimpleHeader: React.FC<{
   currentView: string;
-  onViewChange: (view: 'dashboard' | 'entry' | 'analytics' | 'tasks') => void;
+  onViewChange: (view: 'dashboard' | 'entry' | 'analytics' | 'tasks' | 'supplements' | 'macros' | 'export-test') => void;
 }> = ({ currentView, onViewChange }) => {
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -87,6 +91,49 @@ const SimpleHeader: React.FC<{
           >
             ✅ Tasks
           </button>
+          <button
+            onClick={() => onViewChange('supplements')}
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: currentView === 'supplements' ? '#4f46e5' : '#374151',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.25rem',
+              cursor: 'pointer',
+              fontSize: '0.875rem'
+            }}
+          >
+            📊 Supplements
+          </button>
+          <button
+            onClick={() => onViewChange('macros')}
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: currentView === 'macros' ? '#4f46e5' : '#374151',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.25rem',
+              cursor: 'pointer',
+              fontSize: '0.875rem'
+            }}
+          >
+            🥗 Macros
+          </button>
+          <button
+            onClick={() => onViewChange('export-test')}
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: currentView === 'export-test' ? '#4f46e5' : '#374151',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.25rem',
+              cursor: 'pointer',
+              fontSize: '0.875rem',
+              opacity: 0.7
+            }}
+          >
+            📥 Export
+          </button>
         </nav>
       </div>
     </header>
@@ -96,7 +143,7 @@ const SimpleHeader: React.FC<{
 function App() {
   const [entries, setEntries] = useState<DailyEntry[]>([]);
   const [habits, setHabits] = useState<Habit[]>([]);
-  const [currentView, setCurrentView] = useState<'dashboard' | 'entry' | 'analytics' | 'tasks'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'entry' | 'analytics' | 'tasks' | 'supplements' | 'macros' | 'export-test'>('dashboard');
 
   // Load data from localStorage on startup
   useEffect(() => {
@@ -174,31 +221,23 @@ function App() {
         )}
         
         {currentView === 'analytics' && (
-          <div style={{ padding: '2rem', textAlign: 'center', color: 'white' }}>
-            <h2>📈 Analytics</h2>
-            <p>Visualize your progress and trends over time</p>
-            <div style={{ 
-              backgroundColor: '#374151',
-              padding: '1.5rem',
-              borderRadius: '0.5rem',
-              marginTop: '1rem'
-            }}>
-              <h3>Coming Soon!</h3>
-              <p>Analytics dashboard will include:</p>
-              <ul style={{ listStyle: 'none', padding: 0, marginTop: '1rem' }}>
-                <li>📉 Mood trends over time</li>
-                <li>⚡ Energy patterns</li>
-                <li>🎥 Productivity insights</li>
-                <li>😴 Sleep quality analysis</li>
-                <li>🏃 Exercise consistency</li>
-                <li>🎆 Streak tracking</li>
-              </ul>
-            </div>
-          </div>
+          <Analytics />
         )}
         
         {currentView === 'tasks' && (
           <SimpleTasksComponent />
+        )}
+        
+        {currentView === 'supplements' && (
+          <SupplementManager />
+        )}
+        
+        {currentView === 'macros' && (
+          <Macros />
+        )}
+        
+        {currentView === 'export-test' && (
+          <ExportTest />
         )}
       </main>
     </div>
