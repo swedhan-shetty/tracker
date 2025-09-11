@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
+import { DailyEntry, Habit } from './types';
+import Dashboard from './components/Dashboard';
+import DailyEntryForm from './components/DailyEntryForm';
 
 // Simple Header component without DatabaseService dependency
 const SimpleHeader: React.FC<{
@@ -76,7 +79,58 @@ const SimpleHeader: React.FC<{
 };
 
 function App() {
+  const [entries, setEntries] = useState<DailyEntry[]>([]);
+  const [habits, setHabits] = useState<Habit[]>([]);
   const [currentView, setCurrentView] = useState<'dashboard' | 'entry' | 'analytics'>('dashboard');
+
+  // Load data from localStorage on startup
+  useEffect(() => {
+    try {
+      const savedEntries = localStorage.getItem('dailyEntries');
+      const savedHabits = localStorage.getItem('habits');
+      
+      if (savedEntries) {
+        setEntries(JSON.parse(savedEntries));
+      }
+      
+      if (savedHabits) {
+        setHabits(JSON.parse(savedHabits));
+      }
+    } catch (err) {
+      console.error('Error loading data:', err);
+    }
+  }, []);
+
+  // Save entries to localStorage when they change
+  useEffect(() => {
+    if (entries.length > 0) {
+      localStorage.setItem('dailyEntries', JSON.stringify(entries));
+    }
+  }, [entries]);
+
+  // Save habits to localStorage when they change
+  useEffect(() => {
+    if (habits.length > 0) {
+      localStorage.setItem('habits', JSON.stringify(habits));
+    }
+  }, [habits]);
+
+  const addEntry = (entry: DailyEntry) => {
+    const newEntries = [...entries, entry];
+    setEntries(newEntries);
+  };
+
+  const updateEntry = (updatedEntry: DailyEntry) => {
+    const newEntries = entries.map(entry => 
+      entry.id === updatedEntry.id ? updatedEntry : entry
+    );
+    setEntries(newEntries);
+  };
+
+  const getTodaysEntry = (): DailyEntry | undefined => {
+    const today = new Date().toISOString().split('T')[0];
+    return entries.find(entry => entry.date === today);
+  };
 
   return (
     <div className="App" style={{
@@ -87,68 +141,32 @@ function App() {
     }}>
       <SimpleHeader currentView={currentView} onViewChange={setCurrentView} />
       
-      <main>
+      <main className="main-content">
         {currentView === 'dashboard' && (
-          <div>
-            <h2>🏠 Dashboard</h2>
-            <p>Your personal tracking overview</p>
-            <div style={{ 
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-              gap: '1rem',
-              marginTop: '1rem'
-            }}>
-              <div style={{ backgroundColor: '#374151', padding: '1rem', borderRadius: '0.5rem' }}>
-                <h3>📊 Quick Stats</h3>
-                <p>• Total entries: 0</p>
-                <p>• Current streak: 0 days</p>
-                <p>• Average mood: N/A</p>
-              </div>
-              <div style={{ backgroundColor: '#374151', padding: '1rem', borderRadius: '0.5rem' }}>
-                <h3>📅 Today's Status</h3>
-                <p>• Entry completed: No</p>
-                <p>• Goals set: 0</p>
-                <p>• Habits tracked: 0</p>
-              </div>
-            </div>
-          </div>
+          <Dashboard 
+            entries={entries}
+            habits={habits}
+            todaysEntry={getTodaysEntry()}
+          />
         )}
         
         {currentView === 'entry' && (
-          <div>
-            <h2>✍️ Daily Entry</h2>
-            <p>Track your daily metrics and progress</p>
-            <div style={{ 
-              backgroundColor: '#374151',
-              padding: '1.5rem',
-              borderRadius: '0.5rem',
-              marginTop: '1rem'
-            }}>
-              <h3>Today's Entry Form</h3>
-              <p style={{ marginBottom: '1rem' }}>This is where you would track:</p>
-              <ul style={{ listStyle: 'none', padding: 0 }}>
-                <li style={{ marginBottom: '0.5rem' }}>😊 Mood (1-10 scale)</li>
-                <li style={{ marginBottom: '0.5rem' }}>⚡ Energy level (1-10 scale)</li>
-                <li style={{ marginBottom: '0.5rem' }}>🎥 Productivity (1-10 scale)</li>
-                <li style={{ marginBottom: '0.5rem' }}>😴 Sleep hours</li>
-                <li style={{ marginBottom: '0.5rem' }}>🏃 Exercise minutes</li>
-                <li style={{ marginBottom: '0.5rem' }}>🎢 Daily goals</li>
-                <li style={{ marginBottom: '0.5rem' }}>✅ Habits checklist</li>
-              </ul>
-            </div>
-          </div>
+          <DailyEntryForm
+            habits={habits}
+            existingEntry={getTodaysEntry()}
+            onSave={getTodaysEntry() ? updateEntry : addEntry}
+          />
         )}
         
         {currentView === 'analytics' && (
-          <div>
+          <div style={{ padding: '2rem', textAlign: 'center', color: 'white' }}>
             <h2>📈 Analytics</h2>
             <p>Visualize your progress and trends over time</p>
             <div style={{ 
               backgroundColor: '#374151',
               padding: '1.5rem',
               borderRadius: '0.5rem',
-              marginTop: '1rem',
-              textAlign: 'center'
+              marginTop: '1rem'
             }}>
               <h3>Coming Soon!</h3>
               <p>Analytics dashboard will include:</p>
