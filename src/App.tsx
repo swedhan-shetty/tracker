@@ -3,11 +3,12 @@ import './App.css';
 import { DailyEntry, Habit } from './types';
 import Dashboard from './components/Dashboard';
 import DailyEntryForm from './components/DailyEntryForm';
+import SimpleTasksComponent from './components/SimpleTasksComponent';
 
 // Simple Header component without DatabaseService dependency
 const SimpleHeader: React.FC<{
   currentView: string;
-  onViewChange: (view: 'dashboard' | 'entry' | 'analytics') => void;
+  onViewChange: (view: 'dashboard' | 'entry' | 'analytics' | 'tasks') => void;
 }> = ({ currentView, onViewChange }) => {
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -72,6 +73,20 @@ const SimpleHeader: React.FC<{
           >
             📈 Analytics
           </button>
+          <button
+            onClick={() => onViewChange('tasks')}
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: currentView === 'tasks' ? '#4f46e5' : '#374151',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.25rem',
+              cursor: 'pointer',
+              fontSize: '0.875rem'
+            }}
+          >
+            ✅ Tasks
+          </button>
         </nav>
       </div>
     </header>
@@ -81,7 +96,7 @@ const SimpleHeader: React.FC<{
 function App() {
   const [entries, setEntries] = useState<DailyEntry[]>([]);
   const [habits, setHabits] = useState<Habit[]>([]);
-  const [currentView, setCurrentView] = useState<'dashboard' | 'entry' | 'analytics'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'entry' | 'analytics' | 'tasks'>('dashboard');
 
   // Load data from localStorage on startup
   useEffect(() => {
@@ -180,6 +195,10 @@ function App() {
               </ul>
             </div>
           </div>
+        )}
+        
+        {currentView === 'tasks' && (
+          <SimpleTasksComponent />
         )}
       </main>
     </div>
