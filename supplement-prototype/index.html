@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" data-color-scheme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supplement Archive</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <h1 class="header__title">Supplement Archive</h1>
+                <nav class="header__nav">
+                    <button class="btn btn--outline nav-btn" id="libraryBtn">Library</button>
+                    <button class="btn btn--outline nav-btn" id="stackBtn">Current Stack</button>
+                    <button class="btn btn--outline nav-btn" id="analyticsBtn">Analytics</button>
+                    <button class="btn btn--outline nav-btn" id="recommendationsBtn">Recommendations</button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="container">
+                <!-- Library View -->
+                <section id="libraryView" class="view">
+                    <div class="view-header">
+                        <h2>Supplement Library</h2>
+                        <div class="view-actions">
+                            <div class="search-container">
+                                <input type="text" id="searchInput" class="form-control" placeholder="Search supplements...">
+                            </div>
+                            <button class="btn btn--primary" id="addSupplementBtn">Add Supplement</button>
+                            <button class="btn btn--secondary" id="exportLibraryBtn">Export CSV</button>
+                        </div>
+                    </div>
+
+                    <!-- Categories -->
+                    <div class="categories-container">
+                        <div class="category-section" data-category="Essential Lifelong">
+                            <h3 class="category-title category-title--essential">Essential Lifelong</h3>
+                            <div class="supplements-grid" id="essentialGrid"></div>
+                        </div>
+
+                        <div class="category-section" data-category="Goal-Specific">
+                            <h3 class="category-title category-title--goal">Goal-Specific</h3>
+                            <div class="supplements-grid" id="goalGrid"></div>
+                        </div>
+
+                        <div class="category-section" data-category="Uncertain/Trial">
+                            <h3 class="category-title category-title--uncertain">Uncertain/Trial</h3>
+                            <div class="supplements-grid" id="uncertainGrid"></div>
+                        </div>
+
+                        <div class="category-section" data-category="Wishlist">
+                            <h3 class="category-title category-title--wishlist">Wishlist</h3>
+                            <div class="supplements-grid" id="wishlistGrid"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Current Stack View -->
+                <section id="stackView" class="view hidden">
+                    <div class="view-header">
+                        <h2>Current Stack</h2>
+                        <div class="stack-summary">
+                            <div class="stack-stat">
+                                <span class="stat-label">Total Supplements:</span>
+                                <span class="stat-value" id="totalSupplements">0</span>
+                            </div>
+                            <div class="stack-stat">
+                                <span class="stat-label">Monthly Cost:</span>
+                                <span class="stat-value" id="monthlyCost">₹0</span>
+                            </div>
+                            <div class="stack-stat">
+                                <span class="stat-label">Budget Remaining:</span>
+                                <span class="stat-value" id="budgetRemaining">₹3000</span>
+                            </div>
+                        </div>
+                        <div class="view-actions">
+                            <button class="btn btn--secondary" id="exportStackBtn">Export Stack CSV</button>
+                        </div>
+                    </div>
+
+                    <div class="current-stack-grid" id="currentStackGrid">
+                        <!-- Current stack items will be populated here -->
+                    </div>
+                </section>
+
+                <!-- Analytics View -->
+                <section id="analyticsView" class="view hidden">
+                    <div class="view-header">
+                        <h2>Analytics Dashboard</h2>
+                        <div class="view-actions">
+                            <button class="btn btn--secondary" id="exportAnalyticsBtn">Export Analytics CSV</button>
+                        </div>
+                    </div>
+                    
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <h3>Monthly Spending Trends</h3>
+                            <div class="chart-container" style="position: relative; height: 300px;">
+                                <canvas id="spendingChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="analytics-card">
+                            <h3>Cost by Category</h3>
+                            <div class="chart-container" style="position: relative; height: 300px;">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="analytics-card full-width">
+                            <h3>Budget Overview</h3>
+                            <div class="budget-overview">
+                                <div class="budget-item">
+                                    <span class="budget-label">Monthly Budget:</span>
+                                    <span class="budget-value">₹3,000</span>
+                                </div>
+                                <div class="budget-item">
+                                    <span class="budget-label">Current Spending:</span>
+                                    <span class="budget-value" id="currentSpending">₹2,125</span>
+                                </div>
+                                <div class="budget-item">
+                                    <span class="budget-label">Remaining:</span>
+                                    <span class="budget-value budget-remaining" id="remainingBudget">₹875</span>
+                                </div>
+                            </div>
+                            <div class="budget-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="budgetProgress" style="width: 71%"></div>
+                                </div>
+                                <span class="progress-text">71% of budget used</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Recommendations View -->
+                <section id="recommendationsView" class="view hidden">
+                    <div class="view-header">
+                        <h2>Goal-Based Recommendations</h2>
+                        <div class="goals-summary">
+                            <div class="goal-item active">
+                                <span class="goal-name">Fat Loss</span>
+                                <span class="goal-progress">6kg / 18kg lost</span>
+                            </div>
+                            <div class="goal-item active">
+                                <span class="goal-name">Muscle Gain</span>
+                                <span class="goal-progress">Maintaining</span>
+                            </div>
+                            <div class="goal-item">
+                                <span class="goal-name">General Health</span>
+                                <span class="goal-progress">On track</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="recommendations-grid" id="recommendationsGrid">
+                        <!-- Recommendations will be populated here -->
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Supplement Modal -->
+    <div id="supplementModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add Supplement</h3>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="supplementForm">
+                    <div class="form-group">
+                        <label class="form-label" for="supplementName">Name *</label>
+                        <input type="text" id="supplementName" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="supplementCategory">Category *</label>
+                        <select id="supplementCategory" class="form-control" required>
+                            <option value="">Select Category</option>
+                            <option value="Essential Lifelong">Essential Lifelong</option>
+                            <option value="Goal-Specific">Goal-Specific</option>
+                            <option value="Uncertain/Trial">Uncertain/Trial</option>
+                            <option value="Wishlist">Wishlist</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="supplementDosage">Recommended Dosage</label>
+                        <input type="text" id="supplementDosage" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="supplementTiming">Timing</label>
+                        <input type="text" id="supplementTiming" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="supplementCost">Monthly Cost (₹)</label>
+                        <input type="number" id="supplementCost" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="supplementPurpose">Purpose/Benefits</label>
+                        <textarea id="supplementPurpose" class="form-control" rows="2"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="supplementNotes">Research Notes</label>
+                        <textarea id="supplementNotes" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="inCurrentStack"> Currently taking this supplement
+                        </label>
+                    </div>
+
+                    <div class="form-group" id="currentDosageGroup" style="display: none;">
+                        <label class="form-label" for="currentDosage">Current Dosage</label>
+                        <input type="text" id="currentDosage" class="form-control">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn--secondary" id="cancelBtn">Cancel</button>
+                        <button type="submit" class="btn btn--primary" id="saveBtn">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

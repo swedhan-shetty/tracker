@@ -63,3 +63,31 @@ export interface MacroDaySummary {
   date: string; // YYYY-MM-DD
   totals: NutritionInfo;
 }
+
+export interface DietTemplate {
+  id: string;
+  name: string;
+  description?: string;
+  period: {
+    startDate: string;
+    endDate?: string;
+  };
+  macroTargets: NutritionInfo;
+  color: string;
+  tags?: string[];
+  isActive?: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MacroPreset {
+  id: string;
+  name: string;
+  description: string;
+  macroRatios: {
+    proteinPerKg: number;
+    carbsPercent: number;
+    fatPercent: number;
+  };
+  category: string;
+}

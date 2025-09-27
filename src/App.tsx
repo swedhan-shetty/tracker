@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import './NewApp.css';
+import './assets/modern-ui-system.css';
 import { DailyEntry, Habit } from './types';
 import Dashboard from './components/Dashboard';
 import DailyEntryForm from './components/DailyEntryForm';
 import SimpleTasksComponent from './components/SimpleTasksComponent';
-import SupplementManager from './components/SupplementManager';
+import { SupplementArchive } from './components/supplements';
 import Analytics from './components/Analytics';
+import { WorkoutTracker } from './components/workout';
 import ExportTest from './components/ExportTest';
 import Macros from './components/macros/Macros';
 import BookTracker from './components/BookTracker';
@@ -13,7 +14,7 @@ import BookTracker from './components/BookTracker';
 // Beautiful Sidebar Navigation Component
 const SidebarNavigation: React.FC<{
   currentView: string;
-  onViewChange: (view: 'dashboard' | 'entry' | 'analytics' | 'tasks' | 'supplements' | 'macros' | 'export-test' | 'books') => void;
+  onViewChange: (view: 'dashboard' | 'entry' | 'analytics' | 'tasks' | 'supplements' | 'workouts' | 'macros' | 'export-test' | 'books') => void;
 }> = ({ currentView, onViewChange }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -23,26 +24,32 @@ const SidebarNavigation: React.FC<{
   };
 
   const navItems = [
-    { key: 'dashboard', label: '📊 Dashboard', icon: '📊' },
-    { key: 'entry', label: '✏️ Daily Entry', icon: '✏️' },
-    { key: 'analytics', label: '📈 Analytics', icon: '📈' },
-    { key: 'tasks', label: '✅ Tasks', icon: '✅' },
-    { key: 'supplements', label: '💊 Supplements', icon: '💊' },
-    { key: 'macros', label: '🥗 Macros', icon: '🥗' },
-    { key: 'books', label: '📚 Books', icon: '📚' },
-    { key: 'export-test', label: '📥 Export', icon: '📥' }
+    { key: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+    { key: 'entry', label: 'Daily Entry', icon: 'edit_note' },
+    { key: 'analytics', label: 'Analytics', icon: 'analytics' },
+    { key: 'tasks', label: 'Tasks', icon: 'task_alt' },
+    { key: 'supplements', label: 'Supplement Archive', icon: 'medication' },
+    { key: 'workouts', label: 'Workouts', icon: 'fitness_center' },
+    { key: 'macros', label: 'Macros', icon: 'restaurant' },
+    { key: 'books', label: 'Books', icon: 'menu_book' },
+    { key: 'export-test', label: 'Export', icon: 'download' }
   ];
 
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
-        <h2>📈 Daily Tracker</h2>
+        <h2>
+          <span className="material-icons icon-sm">dashboard</span>
+          Daily Tracker
+        </h2>
         <button 
-          className="theme-toggle btn btn--sm btn--secondary"
+          className="theme-toggle"
           onClick={toggleTheme}
           title="Toggle theme"
         >
-          {isDarkMode ? '☀️' : '🌙'}
+          <span className="material-icons icon-sm">
+            {isDarkMode ? 'light_mode' : 'dark_mode'}
+          </span>
         </button>
       </div>
       
@@ -54,8 +61,8 @@ const SidebarNavigation: React.FC<{
                 className={`nav-item ${currentView === item.key ? 'active' : ''}`}
                 onClick={() => onViewChange(item.key as any)}
               >
-                <span style={{ marginRight: '8px' }}>{item.icon}</span>
-                {item.label.replace(/^[^\s]+\s/, '')}
+                <span className="material-icons">{item.icon}</span>
+                {item.label}
               </button>
             </li>
           ))}
@@ -68,7 +75,7 @@ const SidebarNavigation: React.FC<{
 function App() {
   const [entries, setEntries] = useState<DailyEntry[]>([]);
   const [habits, setHabits] = useState<Habit[]>([]);
-  const [currentView, setCurrentView] = useState<'dashboard' | 'entry' | 'analytics' | 'tasks' | 'supplements' | 'macros' | 'export-test' | 'books'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'entry' | 'analytics' | 'tasks' | 'supplements' | 'workouts' | 'macros' | 'export-test' | 'books'>('dashboard');
 
   // Load data from localStorage on startup
   useEffect(() => {
@@ -134,11 +141,28 @@ function App() {
       case 'entry': return 'Daily Entry';
       case 'analytics': return 'Analytics & Insights';
       case 'tasks': return 'Task Management';
-      case 'supplements': return 'Supplement Tracker';
+      case 'supplements': return 'Supplement Archive';
+      case 'workouts': return 'Workout Tracker';
       case 'macros': return 'Macro Tracking';
       case 'books': return 'Book Library';
       case 'export-test': return 'Data Export';
       default: return 'Dashboard';
+    }
+  };
+
+  // Get header icons
+  const getHeaderIcon = () => {
+    switch (currentView) {
+      case 'dashboard': return 'dashboard';
+      case 'entry': return 'edit_note';
+      case 'analytics': return 'analytics';
+      case 'tasks': return 'task_alt';
+      case 'supplements': return 'medication';
+      case 'workouts': return 'fitness_center';
+      case 'macros': return 'restaurant';
+      case 'books': return 'menu_book';
+      case 'export-test': return 'download';
+      default: return 'dashboard';
     }
   };
 
@@ -149,14 +173,11 @@ function App() {
       <main className="main-content">
         <div className="section-header">
           <div>
-            <h1>{getSectionTitle()}</h1>
-            <p style={{ 
-              margin: '0.5rem 0 0 0', 
-              color: 'var(--color-text-secondary)', 
-              fontSize: 'var(--font-size-sm)' 
-            }}>
-              {today}
-            </p>
+            <h1>
+              <span className="material-icons">{getHeaderIcon()}</span>
+              {getSectionTitle()}
+            </h1>
+            <p>{today}</p>
           </div>
         </div>
 
@@ -186,7 +207,11 @@ function App() {
           )}
           
           {currentView === 'supplements' && (
-            <SupplementManager />
+            <SupplementArchive />
+          )}
+          
+          {currentView === 'workouts' && (
+            <WorkoutTracker />
           )}
           
           {currentView === 'macros' && (

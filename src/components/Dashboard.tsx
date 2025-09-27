@@ -42,132 +42,149 @@ const Dashboard: React.FC<DashboardProps> = ({ entries, habits, todaysEntry }) =
   };
 
   return (
-    <div className="dashboard-grid">
-      <div className="card">
-        <div className="card__body">
-          <div className="stats-grid">
-            <div className="stat-item">
-              <span className="stat-value">{entries.length}</span>
-              <span className="stat-label">📝 Total Entries</span>
-            </div>
+    <div className="fade-in">
+      <h2 className="section-title">
+        <span className="material-icons">insights</span>
+        Key Metrics
+      </h2>
+      
+      <div className="metrics-grid">
+        <div className="metric-card">
+          <span className="material-icons icon-lg" style={{ color: 'var(--color-primary)', marginBottom: 'var(--spacing-3)' }}>article</span>
+          <div className="metric-value">{entries.length}</div>
+          <div className="metric-label">Total Entries</div>
+        </div>
 
-            <div className="stat-item">
-              <span className="stat-value">{getStreakCount()}</span>
-              <span className="stat-label">🔥 Day Streak</span>
-            </div>
+        <div className="metric-card">
+          <span className="material-icons icon-lg" style={{ color: 'var(--color-warning)', marginBottom: 'var(--spacing-3)' }}>local_fire_department</span>
+          <div className="metric-value">{getStreakCount()}</div>
+          <div className="metric-label">Day Streak</div>
+        </div>
 
-            <div className="stat-item">
-              <span className="stat-value">{getAverageMood()}/10</span>
-              <span className="stat-label">😊 Avg Mood</span>
-            </div>
+        <div className="metric-card">
+          <span className="material-icons icon-lg" style={{ color: 'var(--color-success)', marginBottom: 'var(--spacing-3)' }}>mood</span>
+          <div className="metric-value">{getAverageMood()}<span style={{ fontSize: 'var(--font-size-lg)', opacity: 0.7 }}>/10</span></div>
+          <div className="metric-label">Average Mood</div>
+        </div>
 
-            <div className="stat-item">
-              <span className="stat-value">{habits.length}</span>
-              <span className="stat-label">🎯 Active Habits</span>
-            </div>
-          </div>
+        <div className="metric-card">
+          <span className="material-icons icon-lg" style={{ color: 'var(--color-info)', marginBottom: 'var(--spacing-3)' }}>track_changes</span>
+          <div className="metric-value">{habits.length}</div>
+          <div className="metric-label">Active Habits</div>
         </div>
       </div>
+
+      <h2 className="section-title">
+        <span className="material-icons">today</span>
+        Today's Entry
+      </h2>
 
       {todaysEntry ? (
         <div className="card">
-          <div className="card__body">
-            <h3 style={{ marginBottom: 'var(--space-16)' }}>Today's Entry</h3>
-            <div className="stats-grid">
-              <div className="stat-item">
-                <span className="stat-value">{todaysEntry.mood}/10</span>
-                <span className="stat-label">😊 Mood</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-value">{todaysEntry.energy}/10</span>
-                <span className="stat-label">⚡ Energy</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-value">{todaysEntry.productivity}/10</span>
-                <span className="stat-label">🎯 Productivity</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-value">{todaysEntry.sleep}h</span>
-                <span className="stat-label">😴 Sleep</span>
-              </div>
+          <div className="flex gap-6 mb-6">
+            <div className="metric-card" style={{ flex: 1 }}>
+              <span className="material-icons" style={{ color: 'var(--color-success)', marginBottom: 'var(--spacing-2)' }}>mood</span>
+              <div className="metric-value text-2xl">{todaysEntry.mood}/10</div>
+              <div className="metric-label">Mood</div>
             </div>
-            <div style={{ marginTop: 'var(--space-16)', textAlign: 'center' }}>
-              <span style={{ 
-                color: todaysEntry.exercise ? 'var(--color-success)' : 'var(--color-text-secondary)',
-                fontSize: 'var(--font-size-lg)' 
-              }}>
-                🏃‍♂️ Exercise: {todaysEntry.exercise ? '✅' : '❌'}
-              </span>
+            <div className="metric-card" style={{ flex: 1 }}>
+              <span className="material-icons" style={{ color: 'var(--color-warning)', marginBottom: 'var(--spacing-2)' }}>battery_charging_full</span>
+              <div className="metric-value text-2xl">{todaysEntry.energy}/10</div>
+              <div className="metric-label">Energy</div>
             </div>
-            {todaysEntry.notes && (
-              <div style={{ 
-                marginTop: 'var(--space-16)', 
-                padding: 'var(--space-12)', 
-                backgroundColor: 'var(--color-bg-1)', 
-                borderRadius: 'var(--radius-base)', 
-                fontSize: 'var(--font-size-sm)' 
-              }}>
-                <strong>Notes:</strong> {todaysEntry.notes}
-              </div>
-            )}
+            <div className="metric-card" style={{ flex: 1 }}>
+              <span className="material-icons" style={{ color: 'var(--color-info)', marginBottom: 'var(--spacing-2)' }}>trending_up</span>
+              <div className="metric-value text-2xl">{todaysEntry.productivity}/10</div>
+              <div className="metric-label">Productivity</div>
+            </div>
+            <div className="metric-card" style={{ flex: 1 }}>
+              <span className="material-icons" style={{ color: 'var(--color-primary)', marginBottom: 'var(--spacing-2)' }}>bedtime</span>
+              <div className="metric-value text-2xl">{todaysEntry.sleep}h</div>
+              <div className="metric-label">Sleep</div>
+            </div>
           </div>
+          
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <span className="material-icons" style={{ color: todaysEntry.exercise ? 'var(--color-success)' : 'var(--color-text-muted)' }}>fitness_center</span>
+            <span className={`font-medium ${todaysEntry.exercise ? 'text-primary' : 'text-muted'}`}>
+              Exercise: {todaysEntry.exercise ? 'Completed' : 'Not done'}
+            </span>
+            <span className="material-icons" style={{ color: todaysEntry.exercise ? 'var(--color-success)' : 'var(--color-error)' }}>
+              {todaysEntry.exercise ? 'check_circle' : 'cancel'}
+            </span>
+          </div>
+          
+          {todaysEntry.notes && (
+            <div className="card" style={{ background: 'var(--color-surface-elevated)', padding: 'var(--spacing-4)' }}>
+              <div className="flex items-start gap-3">
+                <span className="material-icons text-muted">notes</span>
+                <div>
+                  <div className="font-medium mb-2">Notes</div>
+                  <p className="text-secondary">{todaysEntry.notes}</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
-        <div className="card">
-          <div className="card__body" style={{ textAlign: 'center' }}>
-            <h3 style={{ color: 'var(--color-text-secondary)' }}>No entry for today</h3>
-            <p style={{ color: 'var(--color-text-secondary)' }}>Start tracking your day by creating a new entry!</p>
-          </div>
+        <div className="empty-state">
+          <span className="material-icons">edit_calendar</span>
+          <h3>No entry for today</h3>
+          <p>Start tracking your day by creating a new entry!</p>
         </div>
       )}
 
-      <div className="card">
-        <div className="card__body">
-          <h3 style={{ marginBottom: 'var(--space-16)' }}>Recent Entries</h3>
-          {getRecentEntries().length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-12)' }}>
-              {getRecentEntries().map(entry => (
-                <div key={entry.id} style={{
-                  padding: 'var(--space-12)',
-                  backgroundColor: 'var(--color-bg-1)',
-                  borderRadius: 'var(--radius-base)',
-                  border: '1px solid var(--color-border)'
-                }}>
-                  <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                    gap: 'var(--space-8)'
-                  }}>
-                    <strong style={{ color: 'var(--color-text)' }}>
-                      {new Date(entry.date).toLocaleDateString()}
-                    </strong>
-                    <div style={{ 
-                      display: 'flex', 
-                      gap: 'var(--space-16)', 
-                      fontSize: 'var(--font-size-sm)',
-                      color: 'var(--color-text-secondary)'
-                    }}>
-                      <span>😊 {entry.mood}/10</span>
-                      <span>⚡ {entry.energy}/10</span>
-                      <span>😴 {entry.sleep}h</span>
+      <h2 className="section-title">
+        <span className="material-icons">history</span>
+        Recent Entries
+      </h2>
+
+      {getRecentEntries().length > 0 ? (
+        <div className="flex-col gap-4">
+          {getRecentEntries().map(entry => (
+            <div key={entry.id} className="card">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-4">
+                  <span className="material-icons text-primary">calendar_today</span>
+                  <div>
+                    <div className="font-medium">
+                      {new Date(entry.date).toLocaleDateString('en-US', { 
+                        weekday: 'short', 
+                        month: 'short', 
+                        day: 'numeric' 
+                      })}
+                    </div>
+                    <div className="text-sm text-secondary">
+                      {new Date(entry.date).getFullYear()}
                     </div>
                   </div>
                 </div>
-              ))}
+                
+                <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-2">
+                    <span className="material-icons icon-sm" style={{ color: 'var(--color-success)' }}>mood</span>
+                    <span className="text-sm font-medium">{entry.mood}/10</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="material-icons icon-sm" style={{ color: 'var(--color-warning)' }}>battery_charging_full</span>
+                    <span className="text-sm font-medium">{entry.energy}/10</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="material-icons icon-sm" style={{ color: 'var(--color-primary)' }}>bedtime</span>
+                    <span className="text-sm font-medium">{entry.sleep}h</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          ) : (
-            <p style={{ 
-              textAlign: 'center', 
-              color: 'var(--color-text-secondary)', 
-              fontStyle: 'italic' 
-            }}>
-              No entries yet. Start by creating your first daily entry!
-            </p>
-          )}
+          ))}
         </div>
-      </div>
+      ) : (
+        <div className="empty-state">
+          <span className="material-icons">history</span>
+          <h3>No entries yet</h3>
+          <p>Start by creating your first daily entry!</p>
+        </div>
+      )}
     </div>
   );
 };
