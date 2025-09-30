@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './assets/modern-ui-system.css';
+import './components/auth-styles.css';
 import { DailyEntry, Habit } from './types';
 import Dashboard from './components/Dashboard';
 import DailyEntryForm from './components/DailyEntryForm';
@@ -10,6 +11,10 @@ import { WorkoutTracker } from './components/workout';
 import ExportTest from './components/ExportTest';
 import Macros from './components/macros/Macros';
 import BookTracker from './components/BookTracker';
+import { Auth } from './components/Auth';
+import { DatabaseService } from './services/databaseService';
+import { DatabaseSetup } from './components/DatabaseSetup';
+import { supabase } from './lib/supabase';
 
 // Beautiful Sidebar Navigation Component
 const SidebarNavigation: React.FC<{
@@ -76,9 +81,135 @@ function App() {
   const [entries, setEntries] = useState<DailyEntry[]>([]);
   const [habits, setHabits] = useState<Habit[]>([]);
   const [currentView, setCurrentView] = useState<'dashboard' | 'entry' | 'analytics' | 'tasks' | 'supplements' | 'workouts' | 'macros' | 'export-test' | 'books'>('dashboard');
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [showMigration, setShowMigration] = useState(false);
+  const [databaseError, setDatabaseError] = useState(false);
+  const [useLocalStorage, setUseLocalStorage] = useState(false);
 
-  // Load data from localStorage on startup
+  // Check authentication status on startup
   useEffect(() => {
+    // Immediate fallback timer in case of any issues
+    const emergencyFallback = setTimeout(() => {
+      console.log('Emergency fallback activated - using localStorage');
+      setUseLocalStorage(true);
+      loadDataFromLocalStorage();
+      setLoading(false);
+    }, 15000); // 15 second emergency fallback (increased for slow connection)
+
+    const checkUser = async () => {
+      try {
+        console.log('Starting authentication check...');
+        
+        // Check if user wants to use localStorage only
+        const useLocal = localStorage.getItem('use-local-storage') === 'true';
+        if (useLocal) {
+          console.log('Using localStorage mode by user preference');
+          setUseLocalStorage(true);
+          loadDataFromLocalStorage();
+          setLoading(false);
+          return;
+        }
+
+        // Set a timeout for auth check to prevent hanging
+        const authTimeout = setTimeout(() => {
+          console.log('Auth check timeout - falling back to localStorage');
+          setUseLocalStorage(true);
+          loadDataFromLocalStorage();
+          setLoading(false);
+        }, 10000); // 10 second timeout (increased for slow connection)
+
+        console.log('Checking Supabase auth...');
+        const { data: { user }, error } = await supabase.auth.getUser();
+        
+        clearTimeout(authTimeout);
+        
+        if (error) {
+          console.log('Auth error:', error);
+          throw error;
+        }
+        
+        console.log('Auth check complete, user:', user ? 'logged in' : 'not logged in');
+        setUser(user);
+        
+        if (user) {
+          try {
+            console.log('Loading data from database...');
+            await loadDataFromDatabase();
+            const hasLocalData = localStorage.getItem('dailyEntries') || localStorage.getItem('habits');
+            if (hasLocalData) {
+              setShowMigration(true);
+            }
+          } catch (dbError) {
+            console.error('Database error:', dbError);
+            setDatabaseError(true);
+          }
+        }
+      } catch (err) {
+        console.error('Error in startup:', err);
+        // Fallback to localStorage on any error
+        console.log('Falling back to localStorage mode');
+        setUseLocalStorage(true);
+        loadDataFromLocalStorage();
+      } finally {
+        console.log('Setting loading to false');
+        clearTimeout(emergencyFallback);
+        setLoading(false);
+      }
+    };
+
+    checkUser();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        await loadDataFromDatabase();
+      } else {
+        // Clear data when logged out
+        setEntries([]);
+        setHabits([]);
+      }
+    });
+
+    return () => {
+      clearTimeout(emergencyFallback);
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // Sync to localStorage when in localStorage mode
+  useEffect(() => {
+    if (useLocalStorage && entries.length > 0) {
+      localStorage.setItem('dailyEntries', JSON.stringify(entries));
+    }
+  }, [entries, useLocalStorage]);
+
+  useEffect(() => {
+    if (useLocalStorage && habits.length > 0) {
+      localStorage.setItem('habits', JSON.stringify(habits));
+    }
+  }, [habits, useLocalStorage]);
+
+  // Load data from database
+  const loadDataFromDatabase = async () => {
+    try {
+      const [entriesData, habitsData] = await Promise.all([
+        DatabaseService.getDailyEntries(),
+        DatabaseService.getHabits()
+      ]);
+      
+      setEntries(entriesData);
+      setHabits(habitsData);
+    } catch (err) {
+      console.error('Error loading data from database:', err);
+      throw err;
+    }
+  };
+
+  // Load data from localStorage (fallback)
+  const loadDataFromLocalStorage = () => {
     try {
       const savedEntries = localStorage.getItem('dailyEntries');
       const savedHabits = localStorage.getItem('habits');
@@ -91,34 +222,98 @@ function App() {
         setHabits(JSON.parse(savedHabits));
       }
     } catch (err) {
-      console.error('Error loading data:', err);
+      console.error('Error loading data from localStorage:', err);
     }
-  }, []);
-
-  // Save entries to localStorage when they change
-  useEffect(() => {
-    if (entries.length > 0) {
-      localStorage.setItem('dailyEntries', JSON.stringify(entries));
-    }
-  }, [entries]);
-
-  // Save habits to localStorage when they change
-  useEffect(() => {
-    if (habits.length > 0) {
-      localStorage.setItem('habits', JSON.stringify(habits));
-    }
-  }, [habits]);
-
-  const addEntry = (entry: DailyEntry) => {
-    const newEntries = [...entries, entry];
-    setEntries(newEntries);
   };
 
-  const updateEntry = (updatedEntry: DailyEntry) => {
-    const newEntries = entries.map(entry => 
-      entry.id === updatedEntry.id ? updatedEntry : entry
-    );
-    setEntries(newEntries);
+  const addEntry = async (entry: DailyEntry) => {
+    try {
+      if (useLocalStorage) {
+        // Use localStorage
+        const newEntries = [...entries, entry];
+        setEntries(newEntries);
+      } else {
+        // Use database
+        const savedEntry = await DatabaseService.saveDailyEntry(entry);
+        setEntries(prev => [...prev, savedEntry]);
+      }
+    } catch (err) {
+      console.error('Error saving entry:', err);
+      alert('Failed to save entry. Please try again.');
+    }
+  };
+
+  const updateEntry = async (updatedEntry: DailyEntry) => {
+    try {
+      if (useLocalStorage) {
+        // Use localStorage
+        const newEntries = entries.map(entry => 
+          entry.id === updatedEntry.id ? updatedEntry : entry
+        );
+        setEntries(newEntries);
+      } else {
+        // Use database
+        const savedEntry = await DatabaseService.saveDailyEntry(updatedEntry);
+        setEntries(prev => prev.map(entry => 
+          entry.id === savedEntry.id ? savedEntry : entry
+        ));
+      }
+    } catch (err) {
+      console.error('Error updating entry:', err);
+      alert('Failed to update entry. Please try again.');
+    }
+  };
+
+  // Migration functions
+  const handleMigration = async () => {
+    try {
+      setLoading(true);
+      
+      // Get existing localStorage data
+      const localEntries = localStorage.getItem('dailyEntries');
+      const localHabits = localStorage.getItem('habits');
+      
+      if (localEntries) {
+        const entries: DailyEntry[] = JSON.parse(localEntries);
+        for (const entry of entries) {
+          await DatabaseService.saveDailyEntry(entry);
+        }
+      }
+      
+      if (localHabits) {
+        const habits: Habit[] = JSON.parse(localHabits);
+        for (const habit of habits) {
+          await DatabaseService.saveHabit(habit);
+        }
+      }
+      
+      // Reload data from database
+      await loadDataFromDatabase();
+      
+      // Clear localStorage after successful migration
+      localStorage.removeItem('dailyEntries');
+      localStorage.removeItem('habits');
+      
+      setShowMigration(false);
+      alert('Data migrated successfully!');
+    } catch (err) {
+      console.error('Migration failed:', err);
+      alert('Migration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const skipMigration = () => {
+    setShowMigration(false);
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await DatabaseService.signOut();
+    } catch (err) {
+      console.error('Error signing out:', err);
+    }
   };
 
   const getTodaysEntry = (): DailyEntry | undefined => {
@@ -166,6 +361,60 @@ function App() {
     }
   };
 
+  // Show loading spinner while checking authentication
+  if (loading) {
+    return (
+      <div className="app-container loading">
+        <div className="loading-spinner">
+          <h2>Loading Daily Tracker...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  // Show database setup if there are database errors
+  if (databaseError && !useLocalStorage) {
+    return (
+      <div className="app-container">
+        <DatabaseSetup />
+      </div>
+    );
+  }
+
+  // Show authentication form if user is not logged in (and not using localStorage)
+  if (!user && !useLocalStorage) {
+    return (
+      <div className="app-container">
+        <Auth onAuthSuccess={() => {/* Authentication handled by useEffect */}} />
+      </div>
+    );
+  }
+
+  // Show migration prompt if user has local data
+  if (showMigration) {
+    return (
+      <div className="app-container">
+        <div className="migration-prompt">
+          <div className="migration-card">
+            <h2>🔄 Data Migration Available</h2>
+            <p>
+              We found data stored locally in your browser from previous sessions. 
+              Would you like to migrate this data to your cloud account?
+            </p>
+            <div className="migration-actions">
+              <button onClick={handleMigration} className="btn-primary">
+                Yes, Migrate My Data
+              </button>
+              <button onClick={skipMigration} className="btn-secondary">
+                Skip (I'll do this later)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="app-container">
       <SidebarNavigation currentView={currentView} onViewChange={setCurrentView} />
@@ -178,6 +427,19 @@ function App() {
               {getSectionTitle()}
             </h1>
             <p>{today}</p>
+          </div>
+          <div className="header-actions">
+            {useLocalStorage ? (
+              <span className="storage-mode">📱 Local Storage Mode</span>
+            ) : (
+              <>
+                <span className="user-email">{user?.email}</span>
+                <button onClick={handleSignOut} className="btn-outline">
+                  <span className="material-icons">logout</span>
+                  Sign Out
+                </button>
+              </>
+            )}
           </div>
         </div>
 

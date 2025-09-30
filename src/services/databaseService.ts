@@ -33,18 +33,26 @@ export class DatabaseService {
 
   // Daily Entries
   static async getDailyEntries(): Promise<DailyEntry[]> {
-    const user = await this.getCurrentUser()
-    if (!user) throw new Error('User not authenticated')
+    try {
+      const user = await this.getCurrentUser()
+      if (!user) return []
 
-    const { data, error } = await supabase
-      .from('daily_entries')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('date', { ascending: false })
+      const { data, error } = await supabase
+        .from('daily_entries')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('date', { ascending: false })
 
-    if (error) throw error
+      if (error) {
+        console.warn('Database error (tables might not exist yet):', error)
+        return []
+      }
 
-    return data.map(this.mapDatabaseEntryToAppEntry)
+      return data?.map(this.mapDatabaseEntryToAppEntry) || []
+    } catch (error) {
+      console.warn('Error fetching daily entries:', error)
+      return []
+    }
   }
 
   static async saveDailyEntry(entry: DailyEntry): Promise<DailyEntry> {
@@ -93,18 +101,26 @@ export class DatabaseService {
 
   // Habits
   static async getHabits(): Promise<Habit[]> {
-    const user = await this.getCurrentUser()
-    if (!user) throw new Error('User not authenticated')
+    try {
+      const user = await this.getCurrentUser()
+      if (!user) return []
 
-    const { data, error } = await supabase
-      .from('habits')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: true })
+      const { data, error } = await supabase
+        .from('habits')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: true })
 
-    if (error) throw error
+      if (error) {
+        console.warn('Database error (tables might not exist yet):', error)
+        return []
+      }
 
-    return data.map(this.mapDatabaseHabitToAppHabit)
+      return data?.map(this.mapDatabaseHabitToAppHabit) || []
+    } catch (error) {
+      console.warn('Error fetching habits:', error)
+      return []
+    }
   }
 
   static async saveHabit(habit: Habit): Promise<Habit> {

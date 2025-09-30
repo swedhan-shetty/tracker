@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supabase Connection Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .test { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        #logs { background: #f8f9fa; border: 1px solid #dee2e6; padding: 10px; margin: 10px 0; font-family: monospace; white-space: pre-wrap; max-height: 400px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Supabase Connection Test</h1>
+    
+    <div class="info test">
+        <strong>Testing connection to:</strong><br>
+        URL: https://fskadzvpcknoeeqxjtom.supabase.co<br>
+        Project: daily-tracker
+    </div>
+
+    <button onclick="testConnection()">🔄 Test Connection</button>
+    <button onclick="testAuth()">🔐 Test Auth</button>
+    <button onclick="testTables()">📊 Test Database Tables</button>
+    <button onclick="clearLogs()">🧹 Clear Logs</button>
+
+    <div id="logs"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://fskadzvpcknoeeqxjtom.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZza2FkenZwY2tub2VlcXhqdG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1MjY4MjEsImV4cCI6MjA3MzEwMjgyMX0.C3U_Y_q8VPMa0CJFOu5-7yR4GZgyyHk4uZb9sGIhfOc';
+        
+        const { createClient } = supabase;
+        const sb = createClient(supabaseUrl, supabaseKey);
+        
+        function log(message, type = 'info') {
+            const logs = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            logs.textContent += `[${timestamp}] ${message}\n`;
+            logs.scrollTop = logs.scrollHeight;
+            console.log(message);
+        }
+        
+        function clearLogs() {
+            document.getElementById('logs').textContent = '';
+        }
+        
+        async function testConnection() {
+            log('🔄 Testing basic connection...');
+            try {
+                const startTime = Date.now();
+                const { data, error } = await sb.auth.getSession();
+                const endTime = Date.now();
+                
+                if (error) {
+                    log(`❌ Connection error: ${error.message}`, 'error');
+                } else {
+                    log(`✅ Connection successful! (${endTime - startTime}ms)`, 'success');
+                    log(`Session: ${data.session ? 'Active' : 'None'}`);
+                }
+            } catch (err) {
+                log(`❌ Connection failed: ${err.message}`, 'error');
+            }
+        }
+        
+        async function testAuth() {
+            log('🔐 Testing authentication system...');
+            try {
+                const { data, error } = await sb.auth.getUser();
+                
+                if (error) {
+                    log(`❌ Auth error: ${error.message}`, 'error');
+                } else {
+                    log(`✅ Auth system working!`, 'success');
+                    log(`Current user: ${data.user ? data.user.email : 'Not logged in'}`);
+                }
+            } catch (err) {
+                log(`❌ Auth test failed: ${err.message}`, 'error');
+            }
+        }
+        
+        async function testTables() {
+            log('📊 Testing database tables...');
+            try {
+                const { data, error } = await sb.from('daily_entries').select('id').limit(1);
+                
+                if (error) {
+                    if (error.code === '42P01') {
+                        log(`❌ Tables don't exist: ${error.message}`, 'error');
+                    } else {
+                        log(`❌ Database error: ${error.message}`, 'error');
+                    }
+                } else {
+                    log(`✅ Database tables exist and accessible!`, 'success');
+                    log(`Found ${data.length} entries`);
+                }
+            } catch (err) {
+                log(`❌ Table test failed: ${err.message}`, 'error');
+            }
+        }
+        
+        // Auto-run basic test on page load
+        window.addEventListener('load', () => {
+            log('🚀 Supabase Test Page Loaded');
+            log('Click buttons above to test different features');
+        });
+    </script>
+</body>
+</html>
