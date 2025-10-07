@@ -1,7 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 
 const supabaseUrl = 'https://wrouapuobmzawodrzbpr.supabase.co';
-const supabaseKey = 'YOUR_NEW_ANON_KEY_HERE';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indyb3VhcHVvYm16YXdvZHJ6YnByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzMjkxODAsImV4cCI6MjA3NDkwNTE4MH0.qwUd7P1VKs31tSr_mk1QeCMNtR2rMcauGNRxa_NZmD0';
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
