@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL!
-const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY!
+// Fallback to hardcoded values if environment variables are not set
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://wrouapuobmzawodrzbpr.supabase.co'
+const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indyb3VhcHVvYm16YXdvZHJ6YnByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzMjkxODAsImV4cCI6MjA3NDkwNTE4MH0.qwUd7P1VKs31tSr_mk1QeCMNtR2rMcauGNRxa_NZmD0'
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
