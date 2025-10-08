@@ -366,12 +366,18 @@ function App() {
   // Show loading spinner while checking authentication
   if (loading) {
     return (
-      <div className="app-container loading">
-        <div className="loading-spinner">
-          <h2>Loading Daily Tracker...</h2>
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Loading Daily Tracker...</p>
+        <div style={{ marginTop: '20px', fontSize: '12px', color: '#666' }}>
+          <p>Debug Info:</p>
+          <p>Supabase URL: {process.env.REACT_APP_SUPABASE_URL ? '✅ Set' : '❌ Missing'}</p>
+          <p>Supabase Key: {process.env.REACT_APP_SUPABASE_ANON_KEY ? '✅ Set' : '❌ Missing'}</p>
+          <p>Mode: {useLocalStorage ? 'localStorage' : 'cloud'}</p>
         </div>
       </div>
     );
+  }
   }
 
   // Show database setup if there are database errors
