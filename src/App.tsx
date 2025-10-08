@@ -95,7 +95,7 @@ function App() {
       setUseLocalStorage(true);
       loadDataFromLocalStorage();
       setLoading(false);
-    }, 15000); // 15 second emergency fallback (increased for slow connection)
+    }, 8000); // 8 second emergency fallback
 
     const checkUser = async () => {
       try {
@@ -103,15 +103,7 @@ function App() {
         console.log('Supabase URL:', process.env.REACT_APP_SUPABASE_URL ? 'Set' : 'Missing');
         console.log('Supabase Key:', process.env.REACT_APP_SUPABASE_ANON_KEY ? 'Set' : 'Missing');
         
-        // Check if user wants to use localStorage only
-        const useLocal = localStorage.getItem('use-local-storage') === 'true';
-        if (useLocal) {
-          console.log('Using localStorage mode by user preference');
-          setUseLocalStorage(true);
-          loadDataFromLocalStorage();
-          setLoading(false);
-          return;
-        }
+        // Always attempt authentication first - removed localStorage preference check
 
         // Set a timeout for auth check to prevent hanging
         const authTimeout = setTimeout(() => {
@@ -119,7 +111,7 @@ function App() {
           setUseLocalStorage(true);
           loadDataFromLocalStorage();
           setLoading(false);
-        }, 10000); // 10 second timeout (increased for slow connection)
+        }, 5000); // 5 second timeout
 
         console.log('Checking Supabase auth...');
         const { data: { user }, error } = await supabase.auth.getUser();
