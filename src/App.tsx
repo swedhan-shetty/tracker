@@ -128,6 +128,8 @@ function App() {
         setUser(user);
         
         if (user) {
+          setForceAuth(false); // Disable force auth when user is detected
+          setUseLocalStorage(false); // Ensure cloud mode
           try {
             console.log('Loading data from database...');
             await loadDataFromDatabase();
@@ -160,6 +162,8 @@ function App() {
       setUser(session?.user ?? null);
       
       if (session?.user) {
+        setForceAuth(false); // Disable force auth when user logs in
+        setUseLocalStorage(false); // Ensure cloud mode
         await loadDataFromDatabase();
       } else {
         // Clear data when logged out
