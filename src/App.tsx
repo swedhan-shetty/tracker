@@ -86,6 +86,7 @@ function App() {
   const [showMigration, setShowMigration] = useState(false);
   const [databaseError, setDatabaseError] = useState(false);
   const [useLocalStorage, setUseLocalStorage] = useState(false);
+  const [forceAuth, setForceAuth] = useState(true); // Force authentication attempt
 
   // Check authentication status on startup
   useEffect(() => {
@@ -380,11 +381,14 @@ function App() {
     );
   }
 
-  // Show authentication form if user is not logged in (and not using localStorage)
-  if (!user && !useLocalStorage) {
+  // Show authentication form if user is not logged in (ALWAYS show auth screen initially)
+  if (!user && (forceAuth || !useLocalStorage)) {
     return (
       <div className="app-container">
         <Auth onAuthSuccess={() => {/* Authentication handled by useEffect */}} />
+        <div style={{ position: 'absolute', top: '10px', right: '10px', fontSize: '12px', background: '#f0f0f0', padding: '5px' }}>
+          Debug: Supabase URL configured, Auth forced
+        </div>
       </div>
     );
   }
