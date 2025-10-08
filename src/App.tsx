@@ -378,7 +378,6 @@ function App() {
       </div>
     );
   }
-  }
 
   // Show database setup if there are database errors
   if (databaseError && !useLocalStorage) {
