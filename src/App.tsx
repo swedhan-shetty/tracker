@@ -100,6 +100,8 @@ function App() {
     const checkUser = async () => {
       try {
         console.log('Starting authentication check...');
+        console.log('Supabase URL:', process.env.REACT_APP_SUPABASE_URL ? 'Set' : 'Missing');
+        console.log('Supabase Key:', process.env.REACT_APP_SUPABASE_ANON_KEY ? 'Set' : 'Missing');
         
         // Check if user wants to use localStorage only
         const useLocal = localStorage.getItem('use-local-storage') === 'true';
